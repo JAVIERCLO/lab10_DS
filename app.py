@@ -188,14 +188,14 @@ selected_name=series
 fig=px.line(plot,x='Periodo',y=['Total de viajeros','Vía aérea'],markers=True,
             color_discrete_map={'Total de viajeros':FOREST,'Vía aérea':GOLD},labels={'value':'Viajeros','variable':'Serie'})
 fig.update_traces(marker_size=7,selected=dict(marker=dict(size=12)),unselected=dict(marker=dict(opacity=.4)))
-fig.update_layout(dragmode='select',hovermode='x unified',height=390,margin=dict(l=15,r=15,t=20,b=35),
+fig.update_layout(dragmode='select',hovermode='x unified',height=390,margin=dict(l=70,r=15,t=20,b=70),
                   paper_bgcolor=WHITE,plot_bgcolor=WHITE,font=dict(color=FOREST,size=12),
                   legend=dict(orientation='h',y=1.13,x=0),
-                  xaxis=dict(title='Período',type='category',showgrid=False,tickangle=-35,nticks=14),
-                  yaxis=dict(title='Viajeros',gridcolor=SAND,zerolinecolor=SAND))
+                  xaxis=dict(automargin=True,title='Período',type='category',showgrid=False,tickangle=-35,nticks=14),
+                  yaxis=dict(automargin=True,title='Viajeros',gridcolor=SAND,zerolinecolor=SAND))
 fig.update_traces(line=dict(width=3))
 
-event=st.plotly_chart(fig,use_container_width=True,on_select='rerun',selection_mode=('points','box','lasso'),key='time_selection')
+event=st.plotly_chart(fig,width='stretch',on_select='rerun',selection_mode=('points','box','lasso'),key='time_selection',theme=None)
 chosen=[]
 try:
     for p in event.selection.points:
@@ -216,13 +216,13 @@ long=detail.melt(id_vars='Periodo',value_vars=['Total de viajeros','Vía aérea'
 fig2=px.bar(long,x='Periodo',y='Viajeros',color='Serie',barmode='group',
             color_discrete_map={'Total de viajeros':FOREST,'Vía aérea':GOLD},
             labels={'Periodo':'Período'})
-fig2.update_layout(height=355,margin=dict(l=15,r=15,t=15,b=35),paper_bgcolor=WHITE,plot_bgcolor=WHITE,
+fig2.update_layout(height=355,margin=dict(l=70,r=15,t=15,b=70),paper_bgcolor=WHITE,plot_bgcolor=WHITE,
                    font=dict(color=FOREST,size=12),legend=dict(orientation='h',y=1.14,x=0),
-                   xaxis=dict(type='category',tickangle=-35,nticks=15,showgrid=False),
-                   yaxis=dict(gridcolor=SAND,zerolinecolor=SAND))
+                   xaxis=dict(automargin=True,type='category',tickangle=-35,nticks=15,showgrid=False),
+                   yaxis=dict(automargin=True,gridcolor=SAND,zerolinecolor=SAND))
 fig2.update_traces(hovertemplate='%{x}<br>%{fullData.name}: %{y:,.0f}<extra></extra>')
-st.plotly_chart(fig2,use_container_width=True)
+st.plotly_chart(fig2,width='stretch',theme=None)
 
 with st.expander('Ver y descargar los datos utilizados'):
-    st.dataframe(detail[['Periodo','Total de viajeros','Vía aérea']],use_container_width=True,hide_index=True)
+    st.dataframe(detail[['Periodo','Total de viajeros','Vía aérea']],width='stretch',hide_index=True)
     st.download_button('Descargar datos filtrados (CSV)',detail.to_csv(index=False).encode('utf-8-sig'),'datos_filtrados.csv','text/csv')
