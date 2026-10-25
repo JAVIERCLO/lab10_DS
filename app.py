@@ -124,6 +124,56 @@ m1.metric('Total de viajeros (serie)',f'{subset.Viajero_total.sum():,.0f}')
 m2.metric('Promedio mensual',f'{subset.Viajero_total.mean():,.0f}')
 m3.metric('Viajeros por vía aérea',f'{subset.Viajero_aerea.sum():,.0f}')
 
+col=COLS[series]
+if section=='Evolución':
+    st.subheader(f'Patrones de {series.lower()}')
+    st.caption('Hallazgos descriptivos: muestran cuándo se concentra la actividad, no por qué.')
+    base=joined[joined.Fecha.dt.year.between(year_from,year_to)].copy()
+    base['Año']=base.Fecha.dt.year; base['Mes']=base.Fecha.dt.month
+    h1,h2=st.columns(2)
+    with h1:
+        st.markdown('#### Calendario de viajeros')
+        st.caption('Cada celda es un mes. Más oscuro, más viajeros.')
+        piv=base.pivot_table(index='Año',columns='Mes',values=col,aggfunc='sum').reindex(columns=range(1,13))
+        f=px.imshow(piv.values,x=MESES,y=piv.index.astype(str),color_continuous_scale=[WHITE,SAGE,FOREST],aspect='auto',labels=dict(color='Viajeros'))
+        st.plotly_chart(style(f,380),width='stretch',theme=None)
+    with h2:
+        st.markdown('#### Estacionalidad por mes')
+        st.caption('Distribución de cada mes en los años seleccionados. La línea central es la mediana.')
+        base['Nombre']=base.Mes.map(lambda m:MESES[m-1])
+        f=px.box(base,x='Nombre',y=col,category_orders={'Nombre':MESES},color_discrete_sequence=[FOREST],labels={col:'Viajeros','Nombre':'Mes'})
+        st.plotly_chart(style(f,380),width='stretch',theme=None)
+    st.markdown('#### Variación frente al mismo período del año anterior')
+    st.caption('Verde: crece. Dorado: cae. Un año parcial (2026) solo incluye los meses disponibles.')
+    yo=joined.set_index('Fecha')[col].pct_change(12).mul(100).rename('Variación').reset_index().dropna()
+    yo=yo[yo.Fecha.dt.year.between(year_from,year_to)]
+    if level=='Anual': yo=yo.groupby(yo.Fecha.dt.year.astype(str))['Variación'].mean().reset_index().rename(columns={'Fecha':'Período'})
+    else: yo['Período']=yo.Fecha.dt.strftime('%Y-%m')
+    yo['Dirección']=yo.Variación.ge(0).map({True:'Crece',False:'Cae'})
+    f=px.bar(yo,x='Período',y='Variación',color='Dirección',color_discrete_map={'Crece':FOREST,'Cae':GOLD},labels={'Variación':'Variación (%)'})
+    f.update_xaxes(type='category',categoryorder='category ascending',nticks=14,tickangle=-35)
+    st.plotly_chart(style(f,330),width='stretch',theme=None)
+    st.stop()
+if section=='Vías de ingreso':
+    st.subheader('Vía aérea frente al total de viajeros')
+    st.caption('La serie de vía aérea es una parte del total. La comparación describe cómo se mueven juntas, no demuestra causas.')
+    b=subset.copy()
+    if level=='Anual':
+        b['Período']=b.Fecha.dt.year.astype(str); b=b.groupby('Período',as_index=False)[['Viajero_total','Viajero_aerea']].sum()
+    else: b['Período']=b.Fecha.dt.strftime('%Y-%m')
+    b['Participación aérea (%)']=b.Viajero_aerea/b.Viajero_total*100
+    st.markdown('#### Participación de la vía aérea en el total')
+    st.caption('Porcentaje del total que corresponde a vía aérea.')
+    f=px.area(b,x='Período',y='Participación aérea (%)',color_discrete_sequence=[GOLD])
+    f.update_xaxes(type='category',nticks=14,tickangle=-35)
+    st.plotly_chart(style(f,320),width='stretch',theme=None)
+    st.markdown('#### Total frente a vía aérea')
+    st.caption('Cada punto es un período. Si los puntos suben juntos, ambas series se mueven en la misma dirección.')
+    f=px.scatter(b,x='Viajero_total',y='Viajero_aerea',hover_name='Período',color_discrete_sequence=[FOREST],labels={'Viajero_total':'Total de viajeros','Viajero_aerea':'Vía aérea'})
+    f.update_traces(marker=dict(size=9,opacity=.75,line=dict(color=WHITE,width=1)))
+    st.plotly_chart(style(f,340),width='stretch',theme=None)
+    st.stop()
+
 st.subheader('Evolución de viajeros a través del tiempo')
 st.caption('Selecciona puntos en la gráfica para actualizar la comparación inferior. También puedes usar zoom y consultar los valores al pasar el cursor.')
 plot=subset.copy()
