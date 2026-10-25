@@ -1,0 +1,51 @@
+Serie,Laboratorio,Modelo,MAE,RMSE
+Reg_América Del Centro,Lab1,SeasonalNaive,160448.0,178314.0
+Reg_América Del Centro,Lab1,SES,125408.0,145194.0
+Reg_América Del Centro,Lab1,HoltWinters,203719.0,221949.0
+Reg_América Del Centro,Lab1,"SARIMA(2, 1, 2)x(1, 1, 1, 12)",348865.0,384490.0
+Reg_América Del Centro,Lab1,"auto_arima(2, 1, 3)x(2, 0, 0, 12)",229145.0,251854.0
+Reg_América Del Centro,Lab1,Prophet,49330.0,72731.0
+Reg_América Del Norte,Lab1,SeasonalNaive,51060.0,54630.0
+Reg_América Del Norte,Lab1,SES,40464.0,45105.0
+Reg_América Del Norte,Lab1,HoltWinters,53013.0,57797.0
+Reg_América Del Norte,Lab1,"SARIMA(2, 0, 2)x(1, 1, 1, 12)",41339.0,45727.0
+Reg_América Del Norte,Lab1,"auto_arima(2, 0, 2)x(1, 0, 0, 12)",27036.0,30944.0
+Reg_América Del Norte,Lab1,Prophet,37736.0,42394.0
+Reg_Europa,Lab1,SeasonalNaive,11528.0,12632.0
+Reg_Europa,Lab1,SES,9745.0,11195.0
+Reg_Europa,Lab1,HoltWinters,11085.0,12362.0
+Reg_Europa,Lab1,"SARIMA(0, 1, 1)x(0, 1, 1, 12)",12025.0,13217.0
+Reg_Europa,Lab1,"auto_arima(0, 1, 0)x(0, 1, 0, 12)",12131.0,13374.0
+Reg_Europa,Lab1,Prophet,11863.0,13171.0
+Total,Lab1,SeasonalNaive,207322.0,219664.0
+Total,Lab1,SES,165370.0,180596.0
+Total,Lab1,HoltWinters,255821.0,276949.0
+Total,Lab1,"SARIMA(2, 1, 2)x(1, 1, 1, 12)",448297.0,494650.0
+Total,Lab1,"auto_arima(2, 1, 2)x(2, 0, 1, 12)",310672.0,339501.0
+Total,Lab1,Prophet,132305.0,139549.0
+Via_Aérea,Lab1,SeasonalNaive,75104.0,79077.0
+Via_Aérea,Lab1,SES,36109.0,41368.0
+Via_Aérea,Lab1,HoltWinters,48043.0,52231.0
+Via_Aérea,Lab1,"SARIMA(1, 0, 0)x(1, 1, 0, 12)",NaN,NaN
+Via_Aérea,Lab1,"auto_arima(1, 0, 1)x(1, 0, 1, 12)",28880.0,33908.0
+Via_Aérea,Lab1,Prophet,89017.0,92231.0
+Via_Marítima,Lab1,SeasonalNaive,858.0,1732.0
+Via_Marítima,Lab1,SES,858.0,1732.0
+Via_Marítima,Lab1,HoltWinters,859.0,1732.0
+Via_Marítima,Lab1,"SARIMA(2, 2, 2)x(1, 1, 1, 12)",859.0,1732.0
+Via_Marítima,Lab1,"auto_arima(0, 1, 1)x(2, 0, 0, 12)",859.0,1732.0
+Via_Marítima,Lab1,Prophet,784.0,1645.0
+Via_Terrestre,Lab1,SeasonalNaive,160013.0,176653.0
+Via_Terrestre,Lab1,SES,140730.0,156647.0
+Via_Terrestre,Lab1,HoltWinters,213203.0,231701.0
+Via_Terrestre,Lab1,"SARIMA(2, 1, 2)x(1, 1, 1, 12)",320224.0,352954.0
+Via_Terrestre,Lab1,"auto_arima(2, 1, 3)x(2, 0, 0, 12)",237693.0,259150.0
+Via_Terrestre,Lab1,Prophet,54280.0,71294.0
+Total,Lab2,LSTM lb12_u32_L1_dr0.0,157234.0,172283.0
+Total,Lab2,LSTM lb12_u64_L2_dr0.2,78792.0,92730.0
+Total,Lab2,LSTM lb24_u64_L1_dr0.1,159152.0,173938.0
+Total,Lab2,LSTM lb12_u50_L2_dr0.1,84085.0,95945.0
+Via_Aérea,Lab2,LSTM lb12_u32_L1_dr0.0,92299.0,95218.0
+Via_Aérea,Lab2,LSTM lb12_u64_L2_dr0.2,70093.0,73474.0
+Via_Aérea,Lab2,LSTM lb24_u64_L1_dr0.1,84738.0,87937.0
+Via_Aérea,Lab2,LSTM lb12_u50_L2_dr0.1,84652.0,87790.0

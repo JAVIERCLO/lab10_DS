@@ -40,6 +40,17 @@ total=load('serie_total_mensual.csv')
 air=pd.concat([load('train_via_aerea_mensual.csv'),load('test_via_aerea_mensual.csv')]).drop_duplicates('Fecha',keep='last')
 joined=total.merge(air,on='Fecha',how='inner',suffixes=('_total','_aerea')).sort_values('Fecha')
 
+MESES=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic']
+COLS={'Total de viajeros':'Viajero_total','Vía aérea':'Viajero_aerea'}
+SERIES_NOMBRE={'Total':'Total','Via_Aérea':'Vía aérea','Via_Terrestre':'Vía terrestre','Via_Marítima':'Vía marítima','Reg_América Del Centro':'Región Centroamérica','Reg_América Del Norte':'Región Norteamérica','Reg_Europa':'Región Europa'}
+CLUSTER={'Total':0,'Via_Aérea':0,'Via_Terrestre':0,'Via_Marítima':1,'Reg_América Del Centro':0,'Reg_América Del Norte':2,'Reg_Europa':2}
+DIST={'Via_Marítima':8.66,'Reg_América Del Norte':7.42,'Reg_Europa':6.96,'Via_Terrestre':6.57,'Via_Aérea':6.52,'Reg_América Del Centro':6.49,'Total':6.21}
+
+def style(fig,h=340,**xaxis):
+    fig.update_layout(height=h,margin=dict(l=70,r=15,t=15,b=70),paper_bgcolor=WHITE,plot_bgcolor=WHITE,font=dict(color=FOREST,size=12),
+                      legend=dict(orientation='h',y=1.14,x=0),xaxis=dict(automargin=True,showgrid=False,**xaxis),yaxis=dict(automargin=True,gridcolor=SAND,zerolinecolor=SAND))
+    return fig
+
 with st.sidebar:
     st.markdown('## Observatorio')
     st.caption('TURISMO SOSTENIBLE')
@@ -53,7 +64,38 @@ st.caption('Análisis interactivo de viajeros · Base de migración 2009–junio
 
 if section=='Predicciones':
     st.subheader('Resultados de modelos predictivos')
-    st.info('Esta sección se completará al incorporar los resultados de evaluación de los tres modelos de los laboratorios 1 y/o 2. No se entrenan modelos nuevos.')
+    st.caption('Métricas de los Laboratorios 1 (series de tiempo clásicas) y 2 (LSTM) sobre el mismo conjunto de prueba: abril 2021 a junio 2026. No se entrenaron modelos nuevos. RMSE y MAE miden el error promedio en viajeros: menor es mejor.')
+    met=pd.read_csv(BASE/'metricas_modelos.csv').dropna(subset=['RMSE'])
+    met['Serie']=met.Serie.map(SERIES_NOMBRE)
+    c1,c2=st.columns([1.3,1])
+    with c1: serie_m=st.selectbox('Serie a evaluar',list(SERIES_NOMBRE.values()))
+    with c2: error=st.radio('Métrica de error',['RMSE','MAE'],horizontal=True)
+    sel=met[met.Serie==serie_m].sort_values(error,ascending=False)
+    best=sel.iloc[-1]
+    st.success(f'Menor {error} en {serie_m}: {best.Modelo} ({best.Laboratorio}) con {best[error]:,.0f} viajeros de error.')
+    st.markdown('#### Error por modelo')
+    st.caption('Cada barra es un modelo evaluado en la serie elegida. Verde: Laboratorio 1, dorado: Laboratorio 2 (LSTM).')
+    fig=px.bar(sel,x=error,y='Modelo',color='Laboratorio',orientation='h',color_discrete_map={'Lab1':FOREST,'Lab2':GOLD})
+    fig.update_traces(hovertemplate='%{y}<br>'+error+': %{x:,.0f}<extra></extra>')
+    st.plotly_chart(style(fig,330),width='stretch',theme=None)
+    g1,g2=st.columns(2)
+    with g1:
+        st.markdown('#### Mejor modelo del Lab 1 frente al mejor LSTM')
+        st.caption('Solo las series total y vía aérea tienen LSTM. En total gana el LSTM; en vía aérea gana el modelo clásico.')
+        cmp=met[met.Serie.isin(['Total','Vía aérea'])].copy()
+        cmp['Grupo']=cmp.Laboratorio.map({'Lab1':'Mejor del Lab 1','Lab2':'Mejor LSTM'})
+        cmp=cmp.loc[cmp.groupby(['Serie','Grupo']).RMSE.idxmin()]
+        f=px.bar(cmp,x='Serie',y='RMSE',color='Grupo',barmode='group',hover_data=['Modelo'],color_discrete_map={'Mejor del Lab 1':FOREST,'Mejor LSTM':GOLD})
+        st.plotly_chart(style(f,320),width='stretch',theme=None)
+    with g2:
+        st.markdown('#### Series más y menos parecidas entre sí')
+        st.caption('Distancia media de cada serie al resto según sus características (catch22, Lab 2). Mayor distancia indica un comportamiento más atípico. El color es el grupo de KMeans.')
+        d=pd.DataFrame({'Serie':[SERIES_NOMBRE[k] for k in DIST],'Distancia media':list(DIST.values()),'Grupo':[f'Grupo {CLUSTER[k]+1}' for k in DIST]})
+        f=px.bar(d,x='Distancia media',y='Serie',color='Grupo',orientation='h',color_discrete_sequence=[FOREST,GOLD,SAGE])
+        st.plotly_chart(style(f,320).update_yaxes(autorange='reversed'),width='stretch',theme=None)
+    with st.expander('Tabla comparativa de todos los modelos'):
+        st.dataframe(met.sort_values(['Serie','RMSE'])[['Serie','Laboratorio','Modelo','MAE','RMSE']],width='stretch',hide_index=True)
+    st.info('Limitaciones: el conjunto de prueba incluye la recuperación posterior a 2020, por lo que los errores son altos y difíciles de generalizar. El SARIMA de vía aérea no produjo un pronóstico válido y no aparece. Las métricas se tomaron de los cuadernos originales, no se recalcularon.')
     st.stop()
 if section=='Metodología':
     st.subheader('Fuentes y limitaciones')
